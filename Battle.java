@@ -137,6 +137,14 @@ public class Battle {
 		}
 	}
 	
+	public void ProcessAttack(int selectedTarget, int selectedAttack) {
+		
+	}
+	
+	public void CheckBattle() {
+		
+	}
+	
 	// Returns true if there are any heroes still alive. 
 	// Used to determine whether the battle is over, and who has won.
 	public boolean HeroesLive() {

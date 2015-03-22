@@ -321,7 +321,9 @@ public class GamePanel extends JPanel implements MouseListener {
 		
 		if(attackButton.contains(mouseLoc)) {
 			if(attackButtonClick) {
-				
+				if(selectedDude != -1 && selectedFoe != -1) {
+					battle.ProcessAttack(selectedDude, selectedFoe);
+				}
 			}
 			attackButtonClick = false;
 			repaint();

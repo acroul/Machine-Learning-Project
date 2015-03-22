@@ -68,8 +68,8 @@ public class GamePanel extends JPanel implements MouseListener {
 	
 	public void selectAttack(Graphics2D g2) {
 		Attack attack = battle.Heroes[selectedDude].getAttack(selectedAttack + 1);
-		int startX = heroSquares[0].x;
-		int startY = heroSquares[0].y + heroSquares[0].height + 15;;
+		int startX = heroSquares[3].x;
+		int startY = heroSquares[0].y + heroSquares[0].height + 15;
 		int highlightRectWidth = foeSquares[0].width;
 		int highlightRectHeight = 20;
 		int highlightRectPadding = 10;
@@ -79,10 +79,11 @@ public class GamePanel extends JPanel implements MouseListener {
 		g2.draw(attackSquares[selectedAttack]);
 		
 		g2.setColor(Color.GREEN);
-		for(int i = 0; i < 4; i++) {
+		for(int i = 3; i >= 0; i--) {
 			if(attack.isValidAttackPosition(i)) {
 				g2.drawRect(startX, startY, highlightRectWidth, highlightRectHeight);
 			}
+			startX += highlightRectWidth + highlightRectPadding;
 		}
 		
 		if(attack.targetsTeam()) {			

@@ -6,8 +6,7 @@ import java.awt.geom.*;
 
 public class GamePanel extends JPanel implements MouseListener {
 
-	// idfk, Eclipse said that I should have one of these
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L; // idfk, Eclipse said that I should have one of these
 	private Rectangle[] heroSquares;
 	private Rectangle[] foeSquares;
 	private Rectangle[] attackSquares;

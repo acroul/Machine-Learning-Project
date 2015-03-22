@@ -147,6 +147,10 @@ class Dude {
 		return this.Position;
 	}
 	
+	public int getReadiness() {
+		return this.Readiness;
+	}
+	
 	public boolean isBleeding(){
 		return this.Bleeding;
 	}
@@ -210,4 +214,5 @@ class Dude {
 //MAIN
 ///////////////////////////		
 	public static void main(String[] args) {}
+
 }

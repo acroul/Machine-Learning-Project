@@ -10,11 +10,16 @@ public class GamePanel extends JPanel implements MouseListener {
 	private Rectangle[] heroSquares;
 	private Rectangle[] foeSquares;
 	private Rectangle[] attackSquares;
+	private Rectangle attackButton;
 	private Rectangle highlightedHeroSquare;
 	private Rectangle highlightedFoeSquare;
 	private int selectedDude;
 	private int selectedAttack;
 	private int selectedFoe;
+	private int foesTarget;
+	private boolean attackButtonClick = false;
+	private boolean isHerosTurn = false;
+	private boolean isFoesTurn = false;
 	
 	private Battle battle;
 
@@ -29,10 +34,28 @@ public class GamePanel extends JPanel implements MouseListener {
 		repaint();
 	}
 	
+	public void setHeroTurn(int dudeIndex) {
+		this.isHerosTurn = true;
+		this.isFoesTurn = false;
+		this.selectedFoe = -1;
+		this.selectedDude = dudeIndex;
+	}
+	
+	public void setFoeTurn(int dudeIndex) {
+		this.isFoesTurn = true;
+		this.isHerosTurn = false;
+		this.selectedFoe = dudeIndex;
+		this.selectedDude = -1;
+	}
+	
+	public void setFoesTarget(int dudeIndex) {
+		this.foesTarget = dudeIndex;
+	}
+	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.fillRect(0, 0, 800, 600);
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(Color.WHITE);
 		Graphics2D g2 = (Graphics2D)g;
 		
 		// Draw Dude Squares
@@ -49,6 +72,13 @@ public class GamePanel extends JPanel implements MouseListener {
 		
 		
 		// Draw Attack Button
+		if(attackButtonClick) {
+			g2.setColor(Color.RED);
+		}
+		else {
+			g2.setColor(Color.WHITE);
+		}
+		attackButton = new Rectangle(300, 500, 200, 50);
 		g2.drawRect(300, 500, 200, 50);
 		g2.setFont(new Font("Arial", Font.BOLD, 16));
 		g2.drawString("Attack!", 375, 530);
@@ -162,11 +192,19 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.attackSquares = new Rectangle[4];
 		
 		for(int i = 0; i < 4; i++) {
+			Attack attack = dude.getAttack(i + 1);
 			Rectangle rect = new Rectangle(startX, startY, attackBoxWidth, attackBoxHeight);
 			attackSquares[i] = rect;
+			
+			if(attack.isValidAttackPosition(selectedDude)) {
+				g2.setColor(Color.WHITE);
+			}
+			else {
+				g2.setColor(Color.GRAY);
+			}
+			
 			g2.draw(rect);
 			
-			Attack attack = dude.getAttack(i + 1);
 			g2.drawString(attack.getName(), startX + 5, startY + 15);
 			g2.drawString("DMG: " + attack.getDamage() + "%", startX + 10, startY + 30);
 			g2.drawString("ACC: " + attack.getAccuracy() + "%", startX + 80, startY + 30);
@@ -201,6 +239,7 @@ public class GamePanel extends JPanel implements MouseListener {
 			else {
 				startX += attackBoxWidth + attackBoxPadding;
 			}
+			g2.setColor(Color.WHITE);
 		}
 	}
 	
@@ -214,26 +253,33 @@ public class GamePanel extends JPanel implements MouseListener {
 	
 	public void mouseExited(MouseEvent e) {}
 	
-	public void mousePressed(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {
+		int mouseX = e.getX();
+		int mouseY = e.getY();
+		Point mouseLoc = new Point(mouseX, mouseY);
+		
+		if(attackButton.contains(mouseLoc)) {
+			attackButtonClick = true;
+			repaint();
+		}
+	}
 	
 	public void mouseReleased(MouseEvent e) {
 		int mouseX = e.getX();
 		int mouseY = e.getY();
 		Point mouseLoc = new Point(mouseX, mouseY);
 		
-		if(mouseY <= 100 && mouseY >= 20) {	// Selected a hero or foe
-			for(int i = 0; i < heroSquares.length; i++) {
-				if(heroSquares[i].contains(mouseLoc)) {
-					this.highlightedHeroSquare = heroSquares[i];
-					this.selectedDude = i;
-					repaint();
-				}
+		for(int i = 0; i < heroSquares.length; i++) {
+			if(heroSquares[i].contains(mouseLoc)) {
+				this.highlightedHeroSquare = heroSquares[i];
+				this.selectedDude = i;
+				repaint();
 			}
-			for(int i = 0; i < foeSquares.length; i++) {
-				if(foeSquares[i].contains(mouseLoc)) {
-					this.highlightedFoeSquare = foeSquares[i];
-					repaint();
-				}
+		}
+		for(int i = 0; i < foeSquares.length; i++) {
+			if(foeSquares[i].contains(mouseLoc)) {
+				this.highlightedFoeSquare = foeSquares[i];
+				repaint();
 			}
 		}
 		
@@ -243,5 +289,14 @@ public class GamePanel extends JPanel implements MouseListener {
 				repaint();
 			}
 		}
+		
+		if(attackButton.contains(mouseLoc)) {
+			if(attackButtonClick) {
+				
+			}
+			attackButtonClick = false;
+			repaint();
+		}
+		
 	}
 }

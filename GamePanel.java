@@ -51,6 +51,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.isHerosTurn = false;
 		this.selectedFoe = dudeIndex;
 		this.selectedDude = -1;
+		this.selectedAttack = -1;
 		repaint();
 	}
 	
@@ -93,21 +94,49 @@ public class GamePanel extends JPanel implements MouseListener {
 	}
 	
 	public void selectDude(Graphics2D g2) {
-		if(selectedDude != -1) {
+		g2.setStroke(new BasicStroke(2));
+		
+		if(isHerosTurn && selectedDude != -1) {
 			g2.setColor(Color.GREEN);
-			g2.draw(this.heroSquares[selectedDude]);
+			if(heroSquares[selectedDude] != null) {
+				g2.draw(this.heroSquares[selectedDude]);
+			}
 		}
-		if(selectedFoe != -1) {
+		if(isHerosTurn && selectedFoe != -1) {
 			g2.setColor(Color.RED);
-			g2.draw(this.foeSquares[selectedFoe]);
+			if(foeSquares[selectedFoe] != null) {
+				g2.draw(this.foeSquares[selectedFoe]);
+			}
+		}
+		
+		if(isFoesTurn && selectedFoe != -1) {
+			g2.setColor(Color.GREEN);
+			if(foeSquares[selectedFoe] != null) {
+				g2.draw(this.foeSquares[selectedFoe]);
+			}
+		}
+		if(isFoesTurn && foesTarget != -1) {
+			g2.setColor(Color.RED);
+			if(heroSquares[foesTarget] != null) {
+				g2.draw(this.heroSquares[foesTarget]);
+			}
 		}
 		g2.setColor(Color.WHITE);
 	}
 	
 	public void selectAttack(Graphics2D g2) {
-		Attack attack = battle.Heroes[selectedDude].getAttack(selectedAttack + 1);
-		int startX = heroSquares[3].x;
+		Attack attack;
+		int startX;
 		int startY = heroSquares[0].y + heroSquares[0].height + 15;
+		if(isHerosTurn) {
+			attack = battle.Heroes[selectedDude].getAttack(selectedAttack + 1);
+			startX = 20;
+		}
+		else {
+			attack = battle.Foes[selectedFoe].getAttack(selectedAttack + 1);
+			startX = foeSquares[0].x;
+		}
+		
 		int highlightRectWidth = foeSquares[0].width;
 		int highlightRectHeight = 20;
 		int highlightRectPadding = 10;
@@ -137,7 +166,18 @@ public class GamePanel extends JPanel implements MouseListener {
 			if(attack.isValidTarget(i) || attack.targetsTeam()) {
 				g2.fillRect(startX, startY, highlightRectWidth, highlightRectHeight);
 				if(attack.targetsAll()) {
-					g2.draw(foeSquares[i]);
+					if(isHerosTurn && selectedFoe == -1) {
+						selectedFoe = i;
+					}
+					else if(isFoesTurn && foesTarget == -1) {
+						foesTarget = i;
+					}
+					if(isHerosTurn && foeSquares[i] != null) {
+						g2.draw(foeSquares[i]);
+					}
+					else if(isFoesTurn && heroSquares[i] != null) {
+						g2.draw(heroSquares[i]);
+					}
 					if(i < 3 && attack.isValidTarget(i + 1)) {
 						g2.fillRect(startX + highlightRectWidth, startY + 8, 10, 4);
 					}
@@ -159,7 +199,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		
 		Dude[] heroes = battle.Heroes;
 		for(int i = 3; i >= 0; i--) {
-			if(heroes[i].getHP() > 0) {
+			if(heroes[i] != null) {
 				heroSquares[i] = new Rectangle(startX, startY, dudeInfoBoxSize, dudeInfoBoxSize);
 				g2.drawRect(startX, startY, dudeInfoBoxSize, dudeInfoBoxSize);
 				
@@ -178,7 +218,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		Dude[] foes = battle.Foes;
 		foeSquares = new Rectangle[4];
 		for(int i = 0; i < 4; i++) {
-			if(foes[i].getHP() > 0) {
+			if(foes[i] != null) {
 				foeSquares[i] = new Rectangle(startX, startY, dudeInfoBoxSize, dudeInfoBoxSize);
 				g2.drawRect(startX, startY, dudeInfoBoxSize, dudeInfoBoxSize);
 				g2.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -196,7 +236,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		int startX = 20;
 		int dudeIndex;
 		Dude dude;
-		if(selectedDude != -1) {
+		if(isHerosTurn) {
 			dude = battle.Heroes[selectedDude];
 			dudeIndex = selectedDude;
 			startX = 20;
@@ -301,7 +341,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		
 		if(selectedDude != -1 && selectedAttack != -1) {
 			for(int i = 0; i < foeSquares.length; i++) {
-				if(foeSquares[i].contains(mouseLoc)) {
+				if(foeSquares[i] != null && foeSquares[i].contains(mouseLoc)) {
 					this.selectedFoe = i;
 					this.highlightedFoeSquare = foeSquares[i];
 					repaint();
@@ -322,7 +362,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		if(attackButton.contains(mouseLoc)) {
 			if(attackButtonClick) {
 				if(selectedDude != -1 && selectedFoe != -1) {
-					battle.ProcessAttack(selectedDude, selectedFoe);
+					battle.ProcessAttack(selectedFoe, selectedAttack + 1);
 				}
 			}
 			attackButtonClick = false;

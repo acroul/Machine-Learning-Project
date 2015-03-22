@@ -340,6 +340,10 @@ class Attack {
 		return this.Stuns;
 	}
 	
+	public boolean Heals() {
+		return this.Heals;
+	}
+	
 	public boolean knocksBack(){
 		return this.KnocksBack;
 	}

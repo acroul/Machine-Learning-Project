@@ -138,18 +138,113 @@ public class Battle {
 	}
 	
 	public void ProcessAttack(int selectedTarget, int selectedAttack) {
+		Dude attacker, target;
+		Attack attack;
+		if(currentDudesTurn > -1) {
+			attacker = Heroes[currentDudesTurn];
+			target = Foes[selectedTarget];
+		}
+		else {
+			attacker = Foes[currentDudesTurn * -1];
+			target = Heroes[selectedTarget];
+		}
 		
+		attack = attacker.getAttack(selectedAttack);
+		if(attack.targetsAll()) {
+			for(int i = 0; i < Foes.length; i++) {
+				if(attack.isValidTarget(i) && Foes[i] != null) {
+					PerformAttack(i, attacker, Foes[i], attack);
+				}
+			}
+		}
+		else {
+			PerformAttack(selectedTarget, attacker, target, attack);
+		}
+		
+		gamePanel.updateUI();
+		CheckBattle();
+	}
+	
+	public void PerformAttack(int selectedTarget, Dude attacker, Dude target, Attack attack) {
+		if(!doesAttackHit(attack.getAccuracy())) {
+			System.out.println("The attack missed!");
+		}
+		else {
+			int minAttackDamage = (int) Math.ceil(attacker.getMinDamage() * (attack.getDamage() / 100.0));
+			int maxAttackDamage = (int) Math.ceil(attacker.getMaxDamage() * (attack.getDamage() / 100.0));
+			int damageDealt = randomInRange(minAttackDamage, maxAttackDamage);
+			
+			if(attack.Heals()) {
+				target.setHP(target.getHP() + damageDealt);
+				System.out.println(attack.getName() + " healed " + damageDealt + " HP.");
+				if(target.getHP() > target.getMaxHP()) { target.setHP(target.getMaxHP()); }
+			}
+			else {
+				target.setHP(target.getHP() - damageDealt);
+				System.out.println(attack.getName() + " hit " + target.getName() + " and dealt " + damageDealt + " damage.");
+				if(target.getHP() < 0) { target.setHP(0); }
+			}
+			
+			if(attack.causesBleeding()) { target.setBleeding(true); }
+			if(attack.Stuns()) { target.setStunned(true); }
+			if(attack.Poisons()) { target.setPoisoned(true); }
+			if(attack.knocksBack()) { 
+				int squaresToMove = attack.getKnockBackSpaces();
+				while(squaresToMove > 0) {
+					if(selectedTarget > -1) {
+						Dude temp = Heroes[selectedTarget + 1];
+						Heroes[selectedTarget + 1] = Heroes[selectedTarget];
+						Heroes[selectedTarget] = temp;
+					}
+					else {
+						Dude temp = Foes[selectedTarget + 1];
+						Foes[selectedTarget - 1] = Foes[selectedTarget];
+						Foes[selectedTarget] = temp;
+					}
+				}
+			}		
+		}
 	}
 	
 	public void CheckBattle() {
+		if(!(HeroesLive() && FoesLive())) {
+			if(HeroesLive()) {
+				System.out.println("You've won!");
+				return;
+			}
+			else {
+				System.out.println("You lose, nerd");
+				return;
+			}
+		}
 		
+		for(int i = 0; i < Heroes.length; i++) {
+			if(Heroes[i] != null && Heroes[i].getHP() == 0) {
+				int j;
+				for(j = i; j <= 3; j++) {
+					Heroes[j] = Heroes[j + 1];
+				}
+				Heroes[3] = null;				
+			}
+		}
+		
+		
+		for(int i = 0; i < Foes.length; i++) {
+			if(Foes[i] != null && Foes[i].getHP() == 0) {
+				for(int j = i; j < 3; j++) {
+					Foes[j] = Foes[j + 1];
+				}
+				Foes[3] = null;
+			}			
+		}
+		BattleLoop();
 	}
 	
 	// Returns true if there are any heroes still alive. 
 	// Used to determine whether the battle is over, and who has won.
 	public boolean HeroesLive() {
 		for(int i = 0; i < 4; i++) {
-			if(Heroes[i].getHP() > 0) {
+			if(Heroes[i] != null) {
 				return true;
 			}
 		}
@@ -160,11 +255,25 @@ public class Battle {
 	// Used to determine whether the battle is over, and who has won.
 	public boolean FoesLive() {
 		for(int i = 0; i < 4; i++) {
-			if(Foes[i].getHP() > 0) {
+			if(Foes[i] != null) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	public boolean doesAttackHit(int accuracy) {
+		Random random = new Random(System.currentTimeMillis() * (accuracy));
+		int accuracyResult = randomInRange(0, 100);
+		if(accuracyResult <= accuracy) {
+			return true;
+		}
+		return false;
+	}
+	
+	public int randomInRange(int min, int max) {
+		Random random = new Random(System.currentTimeMillis() * (max + 5)); // Trying a good random seed... I hope
+		return (random.nextInt((max - min) + 1) + min);
 	}
 	
 	public static void main(String args[]) {

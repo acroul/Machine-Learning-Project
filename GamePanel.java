@@ -34,11 +34,16 @@ public class GamePanel extends JPanel implements MouseListener {
 		repaint();
 	}
 	
+//==========================
+//BATTLE FLOW LOGIC
+//==========================
+	
 	public void setHeroTurn(int dudeIndex) {
 		this.isHerosTurn = true;
 		this.isFoesTurn = false;
 		this.selectedFoe = -1;
 		this.selectedDude = dudeIndex;
+		repaint();
 	}
 	
 	public void setFoeTurn(int dudeIndex) {
@@ -46,11 +51,17 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.isHerosTurn = false;
 		this.selectedFoe = dudeIndex;
 		this.selectedDude = -1;
+		repaint();
 	}
 	
 	public void setFoesTarget(int dudeIndex) {
 		this.foesTarget = dudeIndex;
+		repaint();
 	}
+	
+//==========================
+//DRAW LOGIC
+//==========================
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -60,16 +71,13 @@ public class GamePanel extends JPanel implements MouseListener {
 		
 		// Draw Dude Squares
 		drawDudes(g2);
-		if(selectedDude != -1) {
+		if(selectedDude != -1 || selectedFoe != -1) {
 			selectDude(g2);
 			drawAttacks(g2);
 			if(selectedAttack != -1) {
 				selectAttack(g2);
 			}
 		}
-		
-		// Draw Attack Squares
-		
 		
 		// Draw Attack Button
 		if(attackButtonClick) {
@@ -85,14 +93,15 @@ public class GamePanel extends JPanel implements MouseListener {
 	}
 	
 	public void selectDude(Graphics2D g2) {
-		if(highlightedHeroSquare != null) {
-			g2.setStroke(new BasicStroke(2));
-			Color color = g2.getColor();
+		if(selectedDude != -1) {
 			g2.setColor(Color.GREEN);
-			g2.draw(highlightedHeroSquare);
-			g2.setColor(color);
-			drawAttacks(g2);
+			g2.draw(this.heroSquares[selectedDude]);
 		}
+		if(selectedFoe != -1) {
+			g2.setColor(Color.RED);
+			g2.draw(this.foeSquares[selectedFoe]);
+		}
+		g2.setColor(Color.WHITE);
 	}
 	
 	public void selectAttack(Graphics2D g2) {
@@ -127,8 +136,11 @@ public class GamePanel extends JPanel implements MouseListener {
 		for(int i = 0; i < 4; i++) {
 			if(attack.isValidTarget(i) || attack.targetsTeam()) {
 				g2.fillRect(startX, startY, highlightRectWidth, highlightRectHeight);
-				if(attack.targetsAll() && i < 3 && attack.isValidTarget(i + 1)) {
-					g2.fillRect(startX + highlightRectWidth, startY + 8, 10, 4);
+				if(attack.targetsAll()) {
+					g2.draw(foeSquares[i]);
+					if(i < 3 && attack.isValidTarget(i + 1)) {
+						g2.fillRect(startX + highlightRectWidth, startY + 8, 10, 4);
+					}
 				}
 			}
 			startX += highlightRectWidth + highlightRectPadding;
@@ -181,9 +193,19 @@ public class GamePanel extends JPanel implements MouseListener {
 	}
 	
 	public void drawAttacks(Graphics2D g2) {
-		Dude dude = battle.Heroes[selectedDude];
-		
 		int startX = 20;
+		int dudeIndex;
+		Dude dude;
+		if(selectedDude != -1) {
+			dude = battle.Heroes[selectedDude];
+			dudeIndex = selectedDude;
+			startX = 20;
+		}
+		else {
+			dude = battle.Foes[selectedFoe];
+			dudeIndex = selectedFoe;
+			startX = foeSquares[0].x;
+		}
 		int startY = 160;
 		int attackBoxWidth = 170;
 		int attackBoxHeight = 60;
@@ -196,7 +218,7 @@ public class GamePanel extends JPanel implements MouseListener {
 			Rectangle rect = new Rectangle(startX, startY, attackBoxWidth, attackBoxHeight);
 			attackSquares[i] = rect;
 			
-			if(attack.isValidAttackPosition(selectedDude)) {
+			if(attack.isValidAttackPosition(dudeIndex)) {
 				g2.setColor(Color.WHITE);
 			}
 			else {
@@ -269,24 +291,31 @@ public class GamePanel extends JPanel implements MouseListener {
 		int mouseY = e.getY();
 		Point mouseLoc = new Point(mouseX, mouseY);
 		
-		for(int i = 0; i < heroSquares.length; i++) {
+		/*for(int i = 0; i < heroSquares.length; i++) {
 			if(heroSquares[i].contains(mouseLoc)) {
 				this.highlightedHeroSquare = heroSquares[i];
 				this.selectedDude = i;
 				repaint();
 			}
-		}
-		for(int i = 0; i < foeSquares.length; i++) {
-			if(foeSquares[i].contains(mouseLoc)) {
-				this.highlightedFoeSquare = foeSquares[i];
-				repaint();
+		}*/
+		
+		if(selectedDude != -1 && selectedAttack != -1) {
+			for(int i = 0; i < foeSquares.length; i++) {
+				if(foeSquares[i].contains(mouseLoc)) {
+					this.selectedFoe = i;
+					this.highlightedFoeSquare = foeSquares[i];
+					repaint();
+				}
 			}
 		}
 		
-		for(int i = 0; i < 4; i++) {
-			if(attackSquares != null && attackSquares[i].contains(mouseLoc)) {
-				selectedAttack = i;
-				repaint();
+		if(selectedDude != -1) {	// Can only select attack squares if it's your turn
+			for(int i = 0; i < 4; i++) {
+				if(attackSquares != null && attackSquares[i].contains(mouseLoc)) {
+					selectedAttack = i;
+					selectedFoe = -1;
+					repaint();
+				}
 			}
 		}
 		

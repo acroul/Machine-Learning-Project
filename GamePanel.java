@@ -31,7 +31,7 @@ public class GamePanel extends JPanel implements MouseListener {
 	}
 	
 	public void updateUI() {
-		repaint();
+		this.repaint();
 	}
 	
 //==========================
@@ -43,6 +43,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.isFoesTurn = false;
 		this.selectedFoe = -1;
 		this.selectedDude = dudeIndex;
+		this.selectedAttack = -1;
 		repaint();
 	}
 	
@@ -55,15 +56,18 @@ public class GamePanel extends JPanel implements MouseListener {
 		repaint();
 	}
 	
+	public void setFoesAttack(int attackIndex) {
+		this.selectedAttack = attackIndex;
+	}
+	
 	public void setFoesTarget(int dudeIndex) {
 		this.foesTarget = dudeIndex;
-		repaint();
 	}
 	
 //==========================
 //DRAW LOGIC
 //==========================
-	
+	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		g.fillRect(0, 0, 800, 600);
@@ -153,12 +157,22 @@ public class GamePanel extends JPanel implements MouseListener {
 			startX += highlightRectWidth + highlightRectPadding;
 		}
 		
-		if(attack.targetsTeam()) {			
-			startX = heroSquares[3].x;
+		if(attack.targetsTeam()) {	
+			if(isFoesTurn) {
+				startX = foeSquares[0].x;
+			}
+			else {
+				startX = 20;
+			}
 			g2.setColor(Color.GREEN);
 		} 
 		else {
-			startX = foeSquares[0].x;
+			if(isFoesTurn) {
+				startX = heroSquares[0].x;
+			}
+			else {
+				startX = foeSquares[0].x;
+			}
 			g2.setColor(Color.RED);
 		}
 		
@@ -179,11 +193,21 @@ public class GamePanel extends JPanel implements MouseListener {
 						g2.draw(heroSquares[i]);
 					}
 					if(i < 3 && attack.isValidTarget(i + 1)) {
-						g2.fillRect(startX + highlightRectWidth, startY + 8, 10, 4);
+						if(isHerosTurn) {
+							g2.fillRect(startX + highlightRectWidth, startY + 8, 10, 4);
+						}
+						else {
+							g2.fillRect(startX - highlightRectPadding, startY + 8, 10, 4);
+						}
 					}
 				}
 			}
-			startX += highlightRectWidth + highlightRectPadding;
+			if(isHerosTurn) {
+				startX += highlightRectWidth + highlightRectPadding;
+			}
+			else {
+				startX -= (highlightRectWidth + highlightRectPadding);
+			}
 		}
 		g2.setColor(color);
 	}
@@ -224,7 +248,7 @@ public class GamePanel extends JPanel implements MouseListener {
 				g2.setFont(new Font("Arial", Font.PLAIN, 16));
 				g2.drawString(foes[i].getName(), startX + 5, startY + 15);
 				g2.setFont(new Font("Arial", Font.PLAIN, 12));
-				g2.drawString("HP: " + foes[i].getHP() + "/" + heroes[i].getMaxHP(), startX + 10, startY + 30);
+				g2.drawString("HP: " + foes[i].getHP() + "/" + foes[i].getMaxHP(), startX + 10, startY + 30);
 				g2.drawString("DMG: " + foes[i].getMinDamage() + "-" + foes[i].getMaxDamage(), startX + 10, startY + 45);
 				g2.drawString("SPD: " + foes[i].getSpeed(), startX + 10, startY + 60);
 			}
@@ -246,10 +270,14 @@ public class GamePanel extends JPanel implements MouseListener {
 			dudeIndex = selectedFoe;
 			startX = foeSquares[0].x;
 		}
+		if(dude == null) {
+			return;
+		}
 		int startY = 160;
 		int attackBoxWidth = 170;
 		int attackBoxHeight = 60;
 		int attackBoxPadding = 10;
+		
 		
 		this.attackSquares = new Rectangle[4];
 		
@@ -361,13 +389,13 @@ public class GamePanel extends JPanel implements MouseListener {
 		
 		if(attackButton.contains(mouseLoc)) {
 			if(attackButtonClick) {
-				if(selectedDude != -1 && selectedFoe != -1) {
+				if(isHerosTurn && selectedDude != -1 && selectedFoe != -1) {
+					repaint();
+					//battle.sleepOneSecond(selectedFoe, selectedAttack + 1);
 					battle.ProcessAttack(selectedFoe, selectedAttack + 1);
 				}
 			}
 			attackButtonClick = false;
-			repaint();
-		}
-		
+		}		
 	}
 }

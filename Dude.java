@@ -212,11 +212,7 @@ class Dude {
 	}
         
 
-        
-        
-	
-
-        
+              
 ///////////////////////////
 //INFLICT BLEEDING DAMAGE
 ///////////////////////////      
@@ -246,6 +242,8 @@ class Dude {
                 this.Bleeding = false;
             }
         }
+       
+        
         
 ///////////////////////////
 //INFLICT STUN
@@ -258,7 +256,8 @@ class Dude {
             this.Stunned = false;  //Stun only lasts 1 turn
         }
         
-                
+     
+        
 ///////////////////////////
 //MAIN
 ///////////////////////////		

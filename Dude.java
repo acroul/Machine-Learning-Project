@@ -18,7 +18,6 @@ class Dude {
 	private boolean Stunned;
         private int TurnsBleeding = 0;
         private int TurnsPoisoned = 0;
-        private int TurnsStunned = 0;
 	private Attack Attack1;
 	private Attack Attack2;
 	private Attack Attack3;

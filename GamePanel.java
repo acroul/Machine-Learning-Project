@@ -234,6 +234,30 @@ public class GamePanel extends JPanel implements MouseListener {
 				g2.drawString("HP: " + heroes[i].getHP() + "/" + heroes[i].getMaxHP(), startX + 10, startY + 30);
 				g2.drawString("DMG: " + heroes[i].getMinDamage() + "-" + heroes[i].getMaxDamage(), startX + 10, startY + 45);
 				g2.drawString("SPD: " + heroes[i].getSpeed(), startX + 10, startY + 60);
+                                
+                                Color color = g2.getColor();
+                                Font font = g2.getFont();
+				
+                                if(heroes[i].isBleeding()){
+                                    g2.setColor(Color.RED);
+                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
+                                    g2.drawString("BLD", startX + 7, startY + 75);
+                                }
+                                
+                                if(heroes[i].isPoisoned()){
+                                    g2.setColor(Color.GREEN);
+                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
+                                    g2.drawString("PSN", startX + 29, startY + 75);
+                                }
+                                
+                                if(heroes[i].isStunned()){
+                                    g2.setColor(Color.YELLOW);
+                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
+                                    g2.drawString("STUN", startX + 50, startY + 75);   
+                                }
+                                
+                                g2.setColor(color);
+                                g2.setFont(font);
 			}
 			startX += dudeInfoBoxSize + dudeInfoBoxPadding;
 		}
@@ -251,6 +275,30 @@ public class GamePanel extends JPanel implements MouseListener {
 				g2.drawString("HP: " + foes[i].getHP() + "/" + foes[i].getMaxHP(), startX + 10, startY + 30);
 				g2.drawString("DMG: " + foes[i].getMinDamage() + "-" + foes[i].getMaxDamage(), startX + 10, startY + 45);
 				g2.drawString("SPD: " + foes[i].getSpeed(), startX + 10, startY + 60);
+                                
+                                Color color = g2.getColor();
+                                Font font = g2.getFont();
+				
+                                if(foes[i].isBleeding()){
+                                    g2.setColor(Color.RED);
+                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
+                                    g2.drawString("BLD", startX + 7, startY + 75);
+                                }
+                                
+                                if(foes[i].isPoisoned()){
+                                    g2.setColor(Color.GREEN);
+                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
+                                    g2.drawString("PSN", startX + 29, startY + 75);
+                                }
+                                
+                                if(foes[i].isStunned()){
+                                    g2.setColor(Color.YELLOW);
+                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
+                                    g2.drawString("STUN", startX + 50, startY + 75);   
+                                }
+                                
+                                g2.setColor(color);
+                                g2.setFont(font);
 			}
 			startX += dudeInfoBoxSize + dudeInfoBoxPadding;
 		}

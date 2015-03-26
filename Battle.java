@@ -178,18 +178,44 @@ public class Battle {
 			target = Heroes[selectedTarget];
 		}
 		
-		attack = attacker.getAttack(selectedAttack);
-		if(attack.targetsAll()) {
-			for(int i = 0; i < Foes.length; i++) {
-				if(attack.isValidTarget(i) && Foes[i] != null) {
-					PerformAttack(i, attacker, Foes[i], attack);
-				}
-			}
-		}
-		else {
-			PerformAttack(selectedTarget, attacker, target, attack);
-		}
-		
+                //Figure out whether Hero or Enemy is attacking
+                String attackerLoyalty = (currentDudesTurn < 4)?("Your"):("Enemy");
+                
+                //Inflict Bleeding Damage
+                if(attacker.isBleeding()){
+                    attacker.BleedBabyBleed();
+                    
+                    System.out.println(attackerLoyalty + attacker.getName() + "has lost blood!");
+                }
+                
+                //Inflict Poison Damage
+                if(attacker.isPoisoned()){
+                    attacker.FeelingVenomenal();
+                    
+                    System.out.println(attackerLoyalty + attacker.getName() + "has been hurt by poison!");
+                }
+                
+                //Paralyze Player for 1 turn
+                if(attacker.isStunned()){
+                    attacker.WheelchairBound();
+                    
+                    System.out.println(attackerLoyalty + attacker.getName() + "is stunned and cannot move!");
+                    
+                } else{
+                    
+                    attack = attacker.getAttack(selectedAttack);
+                    if(attack.targetsAll()) {
+                        for(int i = 0; i < Foes.length; i++) {
+                            if(attack.isValidTarget(i) && Foes[i] != null) {
+                                    PerformAttack(i, attacker, Foes[i], attack);
+                            }
+                        }
+                    }
+                    else {
+                        PerformAttack(selectedTarget, attacker, target, attack);
+                    }
+                }
+                
 		CheckBattle();
 	}
 	
@@ -258,7 +284,7 @@ public class Battle {
 		}
 		
 		for(int i = 0; i < Heroes.length; i++) {
-			if(Heroes[i] != null && Heroes[i].getHP() == 0) {
+			if(Heroes[i] != null && Heroes[i].getHP() <= 0) {
 				for(int j = i; j < 3; j++) {
 					Heroes[j] = Heroes[j + 1];
 				}
@@ -267,7 +293,7 @@ public class Battle {
 		}		
 		
 		for(int i = 0; i < Foes.length; i++) {
-			if(Foes[i] != null && Foes[i].getHP() == 0) {
+			if(Foes[i] != null && Foes[i].getHP() <= 0) {
 				for(int j = i; j < 3; j++) {
 					Foes[j] = Foes[j + 1];
 				}

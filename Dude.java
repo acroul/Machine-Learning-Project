@@ -16,6 +16,9 @@ class Dude {
 	private boolean Bleeding;
 	private boolean Poisoned;
 	private boolean Stunned;
+        private int TurnsBleeding = 0;
+        private int TurnsPoisoned = 0;
+        private int TurnsStunned = 0;
 	private Attack Attack1;
 	private Attack Attack2;
 	private Attack Attack3;
@@ -207,9 +210,55 @@ class Dude {
 	public void setStunned(boolean StevenHawking){
 		this.Stunned = StevenHawking; //lmao
 	}
+        
+
+        
+        
 	
 
-
+        
+///////////////////////////
+//INFLICT BLEEDING DAMAGE
+///////////////////////////      
+        public void BleedBabyBleed(){
+            this.TurnsBleeding += 1;
+            
+            this.HP -= 2;                    //Bleeding will take 2 HP
+            
+            if(this.TurnsBleeding == 3){     //Bleeding will last 3 turns
+                this.TurnsBleeding = 0;
+                this.Bleeding = false;
+            }
+        }
+        
+	
+        
+///////////////////////////
+//INFLICT POISON DAMAGE
+///////////////////////////      
+        public void FeelingVenomenal(){
+            this.TurnsPoisoned += 1;
+            
+            this.HP -= this.TurnsPoisoned;   //Poison damage will increase each turn
+            
+            if(this.TurnsBleeding == 3){     //Poison will last 3 turns
+                this.TurnsBleeding = 0;
+                this.Bleeding = false;
+            }
+        }
+        
+///////////////////////////
+//INFLICT STUN
+//A man got into a car accident and was rushed to the hospital.
+//His life was saved but the left side of his body was completely paralyzed.
+//"He's going to be all right now," said the doctor.
+///////////////////////////  
+        
+        public void WheelchairBound(){
+            this.Stunned = false;  //Stun only lasts 1 turn
+        }
+        
+                
 ///////////////////////////
 //MAIN
 ///////////////////////////		

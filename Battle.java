@@ -185,21 +185,21 @@ public class Battle {
                 if(attacker.isBleeding()){
                     attacker.BleedBabyBleed();
                     
-                    System.out.println(attackerLoyalty + attacker.getName() + "has lost blood!");
+                    System.out.println(attackerLoyalty + attacker.getName() + " has lost blood!");
                 }
                 
                 //Inflict Poison Damage
                 if(attacker.isPoisoned()){
                     attacker.FeelingVenomenal();
                     
-                    System.out.println(attackerLoyalty + attacker.getName() + "has been hurt by poison!");
+                    System.out.println(attackerLoyalty + attacker.getName() + " has been hurt by poison!");
                 }
                 
                 //Paralyze Player for 1 turn
                 if(attacker.isStunned()){
                     attacker.WheelchairBound();
                     
-                    System.out.println(attackerLoyalty + attacker.getName() + "is stunned and cannot move!");
+                    System.out.println(attackerLoyalty + attacker.getName() + " is stunned and cannot move!");
                     
                 } else{
                     

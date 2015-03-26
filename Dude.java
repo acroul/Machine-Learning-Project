@@ -236,9 +236,9 @@ class Dude {
             
             this.HP -= this.TurnsPoisoned;   //Poison damage will increase each turn
             
-            if(this.TurnsBleeding == 3){     //Poison will last 3 turns
-                this.TurnsBleeding = 0;
-                this.Bleeding = false;
+            if(this.TurnsPoisoned == 3){     //Poison will last 3 turns
+                this.TurnsPoisoned = 0;
+                this.Poisoned = false;
             }
         }
        

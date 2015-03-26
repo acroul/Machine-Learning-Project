@@ -179,7 +179,7 @@ public class Battle {
 		}
 		
                 //Figure out whether Hero or Enemy is attacking
-                String attackerLoyalty = (currentDudesTurn < 4)?("Your"):("Enemy");
+                String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
                 
                 //Inflict Bleeding Damage
                 if(attacker.isBleeding()){

@@ -266,7 +266,7 @@ public class Battle {
         
         ///Take care of status conditions
         public void drawStatusNotifications(boolean Stun, boolean Blood, boolean Poison){
-            StringBuffer message = new StringBuffer();
+            final StringBuffer message = new StringBuffer();
             if(Stun)
                 message.append("Stunned!\n");
             if(Blood)

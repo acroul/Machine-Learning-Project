@@ -278,6 +278,7 @@ public class Battle {
                 public void actionPerformed(ActionEvent event){
                     gamePanel.statusUpdate = true;
                     gamePanel.setStatusNotification(message.toString(), currentDudesTurn);
+                    gamePanel.statusUpdate = false;
                 }
             };
             timer = new Timer(2000, listener);

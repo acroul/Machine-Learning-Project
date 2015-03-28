@@ -97,8 +97,6 @@ public class GamePanel extends JPanel implements MouseListener {
                             {drawStatusNotification(g2);}
                             else
                             {drawNotification(g2);}
-                            
-                            this.statusUpdate = false;
 			}
 		}
 		
@@ -422,8 +420,6 @@ public class GamePanel extends JPanel implements MouseListener {
         public void drawStatusNotification(Graphics2D g2){
             int drawX;
             int drawY = foeSquares[0].y + foeSquares[0].height + 60;
-            
-            System.out.println("WERE HERE");
             
             switch(this.dyingMan){
                 case 0:

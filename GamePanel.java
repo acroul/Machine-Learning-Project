@@ -208,7 +208,7 @@ public class GamePanel extends JPanel implements MouseListener {
 					}
 				}
 			}
-			if(isHerosTurn) {
+			if(isHerosTurn || attack.targetsTeam()) {
 				startX += highlightRectWidth + highlightRectPadding;
 			}
 			else {

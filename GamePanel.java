@@ -2,7 +2,6 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.*;
 
 public class GamePanel extends JPanel implements MouseListener {
 
@@ -56,13 +55,11 @@ public class GamePanel extends JPanel implements MouseListener {
 	
 	public void setFoesAttack(int attackIndex) {
 		this.selectedAttack = attackIndex;
-		this.notification = null;
 		repaint();
 	}
 	
 	public void setFoesTarget(int dudeIndex) {
 		this.foesTarget = dudeIndex;
-		this.notification = null;
 		repaint();
 	}
 
@@ -96,10 +93,10 @@ public class GamePanel extends JPanel implements MouseListener {
 				selectAttack(g2);
 			}
 			if(notification != null) {
-				if(statusUpdate)
-					drawStatusNotification(g2);
-				else
-					drawNotification(g2);
+                            if(statusUpdate)
+                            {drawStatusNotification(g2);}
+                            else
+                            {drawNotification(g2);}
 			}
 		}
 		
@@ -422,35 +419,35 @@ public class GamePanel extends JPanel implements MouseListener {
         
         public void drawStatusNotification(Graphics2D g2){
             int drawX;
-            int drawY = foeSquares[0].y + foeSquares[0].height + 25;
+            int drawY = foeSquares[0].y + foeSquares[0].height + 60;
             
             switch(this.dyingMan){
                 case 0:
-                    drawX = heroSquares[0].x;
+                    drawX = 400;
                     break;
                 case 1:
-                    drawX = heroSquares[1].x;
+                    drawX = 500;
                     break;
                 case 2:
-                    drawX = heroSquares[2].x;
+                    drawX = 600;
                     break;
                 case 3:
-                    drawX = heroSquares[3].x;
+                    drawX = 700;
                     break;
                 case 4:
-                    drawX = foeSquares[0].x;
+                    drawX = 20;
                     break;
                 case 5:
-                    drawX = foeSquares[1].x;
+                    drawX = 100;
                     break;
                 case 6:
-                    drawX = foeSquares[2].x;
+                    drawX = 200;
                     break;
                 case 7:
-                    drawX = foeSquares[3].x;
+                    drawX = 300;
                     break;
                 default:
-                    drawX = heroSquares[0].x;
+                    drawX = 400;
                   
             }
             
@@ -462,7 +459,6 @@ public class GamePanel extends JPanel implements MouseListener {
                     drawY += 20;
             }
             
-            this.statusUpdate = false;
         }
 	
 	public void mouseClicked(MouseEvent e) {

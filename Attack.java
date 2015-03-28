@@ -170,7 +170,7 @@ class Attack {
 				this.KnocksBack = true;
 				this.KnockBackSpaces = 3; //Reverses all enemy positions
 				this.Heals = false;
-				this.ValidAttackPositions = new boolean[] {true, true, false, false}; 
+				this.ValidAttackPositions = new boolean[] {true, true, true, false}; 
 				this.ValidTargets = new boolean[] {true, true, true, true};
 				this.TargetAll = false;
 				this.TargetTeam = false;
@@ -186,7 +186,7 @@ class Attack {
 				this.KnocksBack = false;
 				this.KnockBackSpaces = 0;
 				this.Heals = false;
-				this.ValidAttackPositions = new boolean[] {true, false, false, false};
+				this.ValidAttackPositions = new boolean[] {false, true, true, false};
 				this.ValidTargets = new boolean[] {true, true, true, false};
 				this.TargetAll = false;
 				this.TargetTeam = false;
@@ -218,7 +218,7 @@ class Attack {
 				this.KnocksBack = false;
 				this.KnockBackSpaces = 0;
 				this.Heals = false;
-				this.ValidAttackPositions = new boolean[] {true, false, false, false};
+				this.ValidAttackPositions = new boolean[] {true, true, true, true};
 				this.ValidTargets = new boolean[] {true, true, true, false};
 				this.TargetAll = false;
 				this.TargetTeam = false;

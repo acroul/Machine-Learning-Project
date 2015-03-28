@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
  */
 
 public class Battle {
+        private JFrame window;
 	private GamePanel gamePanel;
 	private Timer timer;
 
@@ -35,7 +36,7 @@ public class Battle {
 		Foes = new Dude[] { new Dude("Warrior", 0), new Dude("Ranger", 1), new Dude("Mage", 2), new Dude("Priest", 3) };
 		readyDudes = new ArrayList<Integer>();
 		
-		JFrame window = new JFrame("Dude Battle");
+		window = new JFrame("Dude Battle");
 		window.setBounds(0, 0, 800, 600);
 		window.setLocationRelativeTo(null);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -138,13 +139,41 @@ public class Battle {
 	
 	public void StartTurn() {
 		if(currentDudesTurn < 4) {
-			Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
-			gamePanel.setHeroTurn(currentDudesTurn);
+                    Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
+
+                    boolean stun = checkStun();
+                    boolean blood = checkBlood();
+                    boolean poison = checkPoison();
+
+                    if(stun || blood || poison)
+                        drawStatusNotifications(stun, blood, poison);
+
+                    
+                //Prevent Hero from attacking if stunned    
+                    if(stun){
+                        BattleLoop();
+                    }else{
+                        gamePanel.setHeroTurn(currentDudesTurn);
+                    }
 		}
 		else {
-			Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
-			PrepareFoesTurn();
-			selectFoe();
+                    Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
+
+                    boolean stun = checkStun();
+                    boolean blood = checkBlood();
+                    boolean poison = checkPoison();
+
+                    if(stun || blood || poison)
+                        drawStatusNotifications(stun, blood, poison);
+
+                    
+                //Prevent Foe from attacking if stunned    
+                    if(stun){
+                        BattleLoop();
+                    }else{
+                        PrepareFoesTurn();
+                        selectFoe();
+                    }
 		}
 	}
 
@@ -234,6 +263,27 @@ public class Battle {
 		timer.setRepeats(false);
 		timer.start();
 	}
+        
+        public void drawStatusNotifications(boolean Stun, boolean Blood, boolean Poison){
+            StringBuffer message = new StringBuffer();
+            if(Stun)
+                message.append("Stunned!\n");
+            if(Blood)
+                message.append("Bleeding!\n");
+            if(Poison)
+                message.append("Poisoned!");
+            
+            ActionListener listener = new ActionListener(){
+                public void actionPerformed(ActionEvent event){
+                    gamePanel.statusUpdate = true;
+                    gamePanel.setStatusNotification(message.toString(), currentDudesTurn);
+                }
+            };
+            timer = new Timer(2000, listener);
+            timer.setRepeats(false);
+            timer.start();
+            System.out.println("HHFHJDHJKFHJDSIFEWIHEWFJKDKJS");
+        }
 	
 	public void ProcessAttack(int selectedTarget, int selectedAttack) {
 		Dude attacker, target;
@@ -247,43 +297,22 @@ public class Battle {
 			target = Heroes[selectedTarget];
 		}
 		
-		//Figure out whether Hero or Enemy is attacking
-		String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
-
-		//Inflict Bleeding Damage
-		if(attacker.isBleeding()){
-			attacker.BleedBabyBleed();
-
-			System.out.println(attackerLoyalty + attacker.getName() + " has lost blood!");
-		}
-
-		//Inflict Poison Damage
-		if(attacker.isPoisoned()){
-			attacker.FeelingVenomenal();
-
-			System.out.println(attackerLoyalty + attacker.getName() + " has been hurt by poison!");
-		}
-
-		//Paralyze Player for 1 turn
-		if(attacker.isStunned()){
-			attacker.WheelchairBound();
-
-			System.out.println(attackerLoyalty + attacker.getName() + " is stunned and cannot move!");
-
-		} else{
-
-			attack = attacker.getAttack(selectedAttack);
-			if(attack.targetsAll()) {
-				for(int i = 0; i < Foes.length; i++) {
-					if(attack.isValidTarget(i) && Foes[i] != null) {
-							PerformAttack(i, attacker, Foes[i], attack);
-					}
-				}
-			}
-			else {
-				PerformAttack(selectedTarget, attacker, target, attack);
-			}
-		}
+                //Inflict status damage
+                checkBlood();
+                checkPoison();
+                
+                //Initiate Attack
+                attack = attacker.getAttack(selectedAttack);
+                if(attack.targetsAll()) {
+                        for(int i = 0; i < Foes.length; i++) {
+                                if(attack.isValidTarget(i) && Foes[i] != null) {
+                                                PerformAttack(i, attacker, Foes[i], attack);
+                                }
+                        }
+                }
+                else {
+                        PerformAttack(selectedTarget, attacker, target, attack);
+                }
                 
 		this.drawNotifications();
 	}
@@ -417,6 +446,54 @@ public class Battle {
 		}
 		return false;
 	}
+        
+        public boolean checkBlood(){
+        //Figure out whether Hero or Enemy is attacking
+            String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
+            Dude attacker = (currentDudesTurn < 4)?(Heroes[currentDudesTurn]):(Foes[currentDudesTurn - 4]);
+            
+        //Inflict Bleeding Damage
+            if(attacker.isBleeding()){
+                    attacker.BleedBabyBleed();
+
+                    String message = attackerLoyalty + attacker.getName() + " has lost blood!";
+                    System.out.println(message);
+                    return true;
+            }
+            return false;
+        }
+        
+        public boolean checkPoison(){
+            //Figure out whether Hero or Enemy is attacking
+            String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
+            Dude attacker = (currentDudesTurn < 4)?(Heroes[currentDudesTurn]):(Foes[currentDudesTurn - 4]);
+            
+            //Inflict Poison Damage
+            if(attacker.isPoisoned()){
+                    attacker.FeelingVenomenal();
+
+                    String message = attackerLoyalty + attacker.getName() + " is hurt by poison!";
+                    System.out.println(message);
+                    return true;
+            }
+            return false;
+        }
+        
+        public boolean checkStun(){
+            //Figure out whether Hero or Enemy is attacking
+            String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
+            Dude attacker = (currentDudesTurn < 4)?(Heroes[currentDudesTurn]):(Foes[currentDudesTurn - 4]);
+            
+            //Skip turn
+            if(attacker.isStunned()){
+                    attacker.WheelchairBound();
+
+                    String message = attackerLoyalty + attacker.getName() + " is stunned and cannot move!";
+                    System.out.println(message);
+                    return true;
+            }
+            return false;
+        }
 	
 	public int randomInRange(int min, int max) {
 		Random random = new Random(System.currentTimeMillis() * (max + 5)); // Trying a good random seed... I hope

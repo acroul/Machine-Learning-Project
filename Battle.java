@@ -221,7 +221,7 @@ public class Battle {
 		timer.start();
 	}
 
-	/// Step six of foe's turn
+	/// Step six of foe's turn (Step five is performing the attack)
 	/// Waits two seconds, then checks the battle and proceeds
 	public void drawNotifications() {
 		gamePanel.setNotification(notification);
@@ -356,7 +356,14 @@ public class Battle {
 		
 		for(int i = 0; i < Heroes.length; i++) {
 			if(Heroes[i] != null && Heroes[i].getHP() <= 0) {
+				readyDudes.remove(new Integer(i));
 				for(int j = i; j < 3; j++) {
+					for(int k = 0; k < readyDudes.size(); k++) {
+						if(j  == readyDudes.get(k)) {
+							readyDudes.remove(new Integer(j));
+							readyDudes.add(j - 1);
+						}
+					}
 					Heroes[j] = Heroes[j + 1];
 				}
 				Heroes[3] = null;				
@@ -365,7 +372,14 @@ public class Battle {
 		
 		for(int i = 0; i < Foes.length; i++) {
 			if(Foes[i] != null && Foes[i].getHP() <= 0) {
+				readyDudes.remove(new Integer(i + 4));
 				for(int j = i; j < 3; j++) {
+					for(int k = 0; k < readyDudes.size(); k++) {
+						if(j + 4 == readyDudes.get(k)) {
+							readyDudes.remove(new Integer(j + 4));
+							readyDudes.add(j + 3);
+						}
+					}
 					Foes[j] = Foes[j + 1];
 				}
 				Foes[3] = null;

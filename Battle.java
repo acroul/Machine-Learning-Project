@@ -264,6 +264,7 @@ public class Battle {
 		timer.start();
 	}
         
+        ///Take care of status conditions
         public void drawStatusNotifications(boolean Stun, boolean Blood, boolean Poison){
             StringBuffer message = new StringBuffer();
             if(Stun)
@@ -282,7 +283,6 @@ public class Battle {
             timer = new Timer(2000, listener);
             timer.setRepeats(false);
             timer.start();
-            System.out.println("HHFHJDHJKFHJDSIFEWIHEWFJKDKJS");
         }
 	
 	public void ProcessAttack(int selectedTarget, int selectedAttack) {
@@ -297,9 +297,6 @@ public class Battle {
 			target = Heroes[selectedTarget];
 		}
 		
-                //Inflict status damage
-                checkBlood();
-                checkPoison();
                 
                 //Initiate Attack
                 attack = attacker.getAttack(selectedAttack);

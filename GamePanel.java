@@ -6,17 +6,15 @@ import java.awt.geom.*;
 
 public class GamePanel extends JPanel implements MouseListener {
 
-	private static final long serialVersionUID = 1L; // idfk, Eclipse said that I should have one of these
 	private Rectangle[] heroSquares;
 	private Rectangle[] foeSquares;
 	private Rectangle[] attackSquares;
 	private Rectangle attackButton;
-	private Rectangle highlightedHeroSquare;
-	private Rectangle highlightedFoeSquare;
 	private int selectedDude;
 	private int selectedAttack;
 	private int selectedFoe;
 	private int foesTarget;
+	private String notification;
 	private boolean attackButtonClick = false;
 	private boolean isHerosTurn = false;
 	private boolean isFoesTurn = false;
@@ -30,10 +28,6 @@ public class GamePanel extends JPanel implements MouseListener {
 		selectedAttack = -1;
 	}
 	
-	public void updateUI() {
-		this.repaint();
-	}
-	
 //==========================
 //BATTLE FLOW LOGIC
 //==========================
@@ -44,6 +38,7 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.selectedFoe = -1;
 		this.selectedDude = dudeIndex;
 		this.selectedAttack = -1;
+		this.notification = null;
 		repaint();
 	}
 	
@@ -53,15 +48,23 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.selectedFoe = dudeIndex;
 		this.selectedDude = -1;
 		this.selectedAttack = -1;
+		this.notification = null;
 		repaint();
 	}
 	
 	public void setFoesAttack(int attackIndex) {
 		this.selectedAttack = attackIndex;
+		repaint();
 	}
 	
 	public void setFoesTarget(int dudeIndex) {
 		this.foesTarget = dudeIndex;
+		repaint();
+	}
+
+	public void setNotification(String notification) {
+		this.notification = notification;
+		repaint();
 	}
 	
 //==========================
@@ -81,6 +84,9 @@ public class GamePanel extends JPanel implements MouseListener {
 			drawAttacks(g2);
 			if(selectedAttack != -1) {
 				selectAttack(g2);
+			}
+			if(notification != null) {
+				drawNotification(g2);
 			}
 		}
 		
@@ -235,29 +241,29 @@ public class GamePanel extends JPanel implements MouseListener {
 				g2.drawString("DMG: " + heroes[i].getMinDamage() + "-" + heroes[i].getMaxDamage(), startX + 10, startY + 45);
 				g2.drawString("SPD: " + heroes[i].getSpeed(), startX + 10, startY + 60);
                                 
-                                Color color = g2.getColor();
-                                Font font = g2.getFont();
-				
-                                if(heroes[i].isBleeding()){
-                                    g2.setColor(Color.RED);
-                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
-                                    g2.drawString("BLD", startX + 7, startY + 75);
-                                }
-                                
-                                if(heroes[i].isPoisoned()){
-                                    g2.setColor(Color.GREEN);
-                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
-                                    g2.drawString("PSN", startX + 29, startY + 75);
-                                }
-                                
-                                if(heroes[i].isStunned()){
-                                    g2.setColor(Color.YELLOW);
-                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
-                                    g2.drawString("STUN", startX + 50, startY + 75);   
-                                }
-                                
-                                g2.setColor(color);
-                                g2.setFont(font);
+				Color color = g2.getColor();
+				Font font = g2.getFont();
+
+				if(heroes[i].isBleeding()){
+					g2.setColor(Color.RED);
+					g2.setFont(new Font("Arial", Font.PLAIN, 9));
+					g2.drawString("BLD", startX + 7, startY + 75);
+				}
+
+				if(heroes[i].isPoisoned()){
+					g2.setColor(Color.GREEN);
+					g2.setFont(new Font("Arial", Font.PLAIN, 9));
+					g2.drawString("PSN", startX + 29, startY + 75);
+				}
+
+				if(heroes[i].isStunned()){
+					g2.setColor(Color.YELLOW);
+					g2.setFont(new Font("Arial", Font.PLAIN, 9));
+					g2.drawString("STUN", startX + 50, startY + 75);
+				}
+
+				g2.setColor(color);
+				g2.setFont(font);
 			}
 			startX += dudeInfoBoxSize + dudeInfoBoxPadding;
 		}
@@ -276,29 +282,29 @@ public class GamePanel extends JPanel implements MouseListener {
 				g2.drawString("DMG: " + foes[i].getMinDamage() + "-" + foes[i].getMaxDamage(), startX + 10, startY + 45);
 				g2.drawString("SPD: " + foes[i].getSpeed(), startX + 10, startY + 60);
                                 
-                                Color color = g2.getColor();
-                                Font font = g2.getFont();
-				
-                                if(foes[i].isBleeding()){
-                                    g2.setColor(Color.RED);
-                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
-                                    g2.drawString("BLD", startX + 7, startY + 75);
-                                }
-                                
-                                if(foes[i].isPoisoned()){
-                                    g2.setColor(Color.GREEN);
-                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
-                                    g2.drawString("PSN", startX + 29, startY + 75);
-                                }
-                                
-                                if(foes[i].isStunned()){
-                                    g2.setColor(Color.YELLOW);
-                                    g2.setFont(new Font("Arial", Font.PLAIN, 9));
-                                    g2.drawString("STUN", startX + 50, startY + 75);   
-                                }
-                                
-                                g2.setColor(color);
-                                g2.setFont(font);
+				Color color = g2.getColor();
+				Font font = g2.getFont();
+
+				if(foes[i].isBleeding()){
+					g2.setColor(Color.RED);
+					g2.setFont(new Font("Arial", Font.PLAIN, 9));
+					g2.drawString("BLD", startX + 7, startY + 75);
+				}
+
+				if(foes[i].isPoisoned()){
+					g2.setColor(Color.GREEN);
+					g2.setFont(new Font("Arial", Font.PLAIN, 9));
+					g2.drawString("PSN", startX + 29, startY + 75);
+				}
+
+				if(foes[i].isStunned()){
+					g2.setColor(Color.YELLOW);
+					g2.setFont(new Font("Arial", Font.PLAIN, 9));
+					g2.drawString("STUN", startX + 50, startY + 75);
+				}
+
+				g2.setColor(color);
+				g2.setFont(font);
 			}
 			startX += dudeInfoBoxSize + dudeInfoBoxPadding;
 		}
@@ -380,6 +386,26 @@ public class GamePanel extends JPanel implements MouseListener {
 			g2.setColor(Color.WHITE);
 		}
 	}
+
+	public void drawNotification(Graphics2D g2) {
+		int drawX;
+		int drawY = foeSquares[0].y + foeSquares[0].height + 60;
+		if(this.isHerosTurn) {
+			Dude target = battle.Heroes[this.selectedFoe];
+			drawX = foeSquares[selectedFoe].x;
+		}
+		else {
+			Dude target = battle.Foes[this.foesTarget];
+			drawX = heroSquares[foesTarget].x;
+		}
+
+		g2.setFont(new Font("Courier", Font.BOLD, 18));
+		String[] lines = notification.split("\n");
+		for(String line : lines) {
+			g2.drawString(line, drawX, drawY);
+			drawY += 20;
+		}
+	}
 	
 	public void mouseClicked(MouseEvent e) {
 
@@ -419,7 +445,6 @@ public class GamePanel extends JPanel implements MouseListener {
 			for(int i = 0; i < foeSquares.length; i++) {
 				if(foeSquares[i] != null && foeSquares[i].contains(mouseLoc)) {
 					this.selectedFoe = i;
-					this.highlightedFoeSquare = foeSquares[i];
 					repaint();
 				}
 			}
@@ -439,7 +464,6 @@ public class GamePanel extends JPanel implements MouseListener {
 			if(attackButtonClick) {
 				if(isHerosTurn && selectedDude != -1 && selectedFoe != -1) {
 					repaint();
-					//battle.sleepOneSecond(selectedFoe, selectedAttack + 1);
 					battle.ProcessAttack(selectedFoe, selectedAttack + 1);
 				}
 			}

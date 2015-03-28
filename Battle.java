@@ -1,10 +1,8 @@
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -27,7 +25,10 @@ public class Battle {
 	private int readinessThreshold = 20;
 	private ArrayList<Integer> readyDudes;
 	private int currentDudesTurn; //Which dude's turn it is
-	
+
+	private int foesSelectedAttack;
+	private int foesTarget;
+	private String notification;
 	
 	public Battle() {
 		Heroes = new Dude[] { new Dude("Warrior", 0), new Dude("Ranger", 1), new Dude("Mage", 2), new Dude("Priest", 3) };
@@ -136,34 +137,102 @@ public class Battle {
 	}
 	
 	public void StartTurn() {
-		for(int i : readyDudes) {
-		}
 		if(currentDudesTurn < 4) {
+			Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
 			gamePanel.setHeroTurn(currentDudesTurn);
 		}
 		else {
-			gamePanel.setFoeTurn(currentDudesTurn - 4);
-			gamePanel.repaint();
-			HandleFoeTurn();
+			Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
+			PrepareFoesTurn();
+			selectFoe();
 		}
 	}
-	
-	public void HandleFoeTurn() {
-		sleepOneSecond();
+
+	/// Step one of foe's turn
+	/// Sets up the foe's attack
+	public void PrepareFoesTurn() {
 		int strongestAttack = 0;
 		int strongestAttackIndex = 0;
 		Dude attacker = Foes[currentDudesTurn - 4];
+
 		for(int i = 1; i <= 4; i++) {
 			if(attacker.getAttack(i).getDamage() > strongestAttack) {
 				strongestAttack = attacker.getAttack(i).getDamage();
-				strongestAttackIndex = i;				
+				strongestAttackIndex = i;
 			}
 		}
-		
-		gamePanel.setFoesAttack(strongestAttackIndex);
-		gamePanel.setFoesTarget(0);
-		gamePanel.updateUI();		
-		ProcessAttack(0, strongestAttackIndex);
+
+		foesSelectedAttack = strongestAttackIndex;
+	}
+
+	/// Step two of the foe's turn
+	/// Waits one second, then selects the foe who will attack
+	public void selectFoe() {
+		ActionListener listener = new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				gamePanel.setFoeTurn(currentDudesTurn - 4);
+				setFoesAttack();
+			}
+		};
+		timer = new Timer(1000, listener);
+		timer.setRepeats(false);
+		timer.start();
+	}
+
+	/// Step three of the foe's turn
+	/// Waits one second, then selects the foe's attack it will use
+	public void setFoesAttack() {
+		ActionListener listener = new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				System.out.println("===============\nSelecting attack #" + foesSelectedAttack + "\n=======================");
+				gamePanel.setFoesAttack(foesSelectedAttack - 1);
+				setFoesTarget();
+			}
+		};
+		timer = new Timer(1000, listener);
+		timer.setRepeats(false);
+		timer.start();
+	}
+
+	/// Step four of the foe's turn
+	/// Waits one second, then selects the foe's target of its attack
+	public void setFoesTarget() {
+		ActionListener listener = new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				gamePanel.setFoesTarget(0);
+				performFoesAttack();
+			}
+		};
+		timer = new Timer(1000, listener);
+		timer.setRepeats(false);
+		timer.start();
+	}
+
+	/// Step five of the foe's turn
+	/// Waits one second, then performs the attack
+	public void performFoesAttack() {
+		ActionListener listener = new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				ProcessAttack(0, foesSelectedAttack);
+			}
+		};
+		timer = new Timer(1000, listener);
+		timer.setRepeats(false);
+		timer.start();
+	}
+
+	/// Step six of foe's turn
+	/// Waits two seconds, then checks the battle and proceeds
+	public void drawNotifications() {
+		gamePanel.setNotification(notification);
+		ActionListener listener = new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				CheckBattle();
+			}
+		};
+		timer = new Timer(2000, listener);
+		timer.setRepeats(false);
+		timer.start();
 	}
 	
 	public void ProcessAttack(int selectedTarget, int selectedAttack) {
@@ -178,45 +247,45 @@ public class Battle {
 			target = Heroes[selectedTarget];
 		}
 		
-                //Figure out whether Hero or Enemy is attacking
-                String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
+		//Figure out whether Hero or Enemy is attacking
+		String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
+
+		//Inflict Bleeding Damage
+		if(attacker.isBleeding()){
+			attacker.BleedBabyBleed();
+
+			System.out.println(attackerLoyalty + attacker.getName() + " has lost blood!");
+		}
+
+		//Inflict Poison Damage
+		if(attacker.isPoisoned()){
+			attacker.FeelingVenomenal();
+
+			System.out.println(attackerLoyalty + attacker.getName() + " has been hurt by poison!");
+		}
+
+		//Paralyze Player for 1 turn
+		if(attacker.isStunned()){
+			attacker.WheelchairBound();
+
+			System.out.println(attackerLoyalty + attacker.getName() + " is stunned and cannot move!");
+
+		} else{
+
+			attack = attacker.getAttack(selectedAttack);
+			if(attack.targetsAll()) {
+				for(int i = 0; i < Foes.length; i++) {
+					if(attack.isValidTarget(i) && Foes[i] != null) {
+							PerformAttack(i, attacker, Foes[i], attack);
+					}
+				}
+			}
+			else {
+				PerformAttack(selectedTarget, attacker, target, attack);
+			}
+		}
                 
-                //Inflict Bleeding Damage
-                if(attacker.isBleeding()){
-                    attacker.BleedBabyBleed();
-                    
-                    System.out.println(attackerLoyalty + attacker.getName() + " has lost blood!");
-                }
-                
-                //Inflict Poison Damage
-                if(attacker.isPoisoned()){
-                    attacker.FeelingVenomenal();
-                    
-                    System.out.println(attackerLoyalty + attacker.getName() + " has been hurt by poison!");
-                }
-                
-                //Paralyze Player for 1 turn
-                if(attacker.isStunned()){
-                    attacker.WheelchairBound();
-                    
-                    System.out.println(attackerLoyalty + attacker.getName() + " is stunned and cannot move!");
-                    
-                } else{
-                    
-                    attack = attacker.getAttack(selectedAttack);
-                    if(attack.targetsAll()) {
-                        for(int i = 0; i < Foes.length; i++) {
-                            if(attack.isValidTarget(i) && Foes[i] != null) {
-                                    PerformAttack(i, attacker, Foes[i], attack);
-                            }
-                        }
-                    }
-                    else {
-                        PerformAttack(selectedTarget, attacker, target, attack);
-                    }
-                }
-                
-		CheckBattle();
+		this.drawNotifications();
 	}
 	
 	public void PerformAttack(int selectedTarget, Dude attacker, Dude target, Attack attack) {
@@ -227,6 +296,7 @@ public class Battle {
 			else {
 				System.out.println("Enemy " + attacker.getName() + "\'s " + attack.getName() + " missed!");
 			}
+			this.notification = "Missed!";
 		}
 		else {
 			int minAttackDamage = (int) Math.ceil(attacker.getMinDamage() * (attack.getDamage() / 100.0));
@@ -247,6 +317,7 @@ public class Battle {
 					System.out.println("Enemy " + attacker.getName() + "\'s " + attack.getName() + " hit " + target.getName() + " and dealt " + damageDealt + " damage.");
 				}
 				if(target.getHP() < 0) { target.setHP(0); }
+				this.notification = "Hit!\n" + damageDealt + "dmg";
 			}
 			
 			if(attack.causesBleeding()) { target.setBleeding(true); }
@@ -331,17 +402,6 @@ public class Battle {
 			return true;
 		}
 		return false;
-	}
-	
-	public void sleepOneSecond() {
-		ActionListener listener = new ActionListener(){
-	        public void actionPerformed(ActionEvent event){
-	            gamePanel.repaint();
-	        }
-	    };
-	    timer = new Timer(1000, listener);
-	    timer.setRepeats(false);
-	    timer.start();
 	}
 	
 	public int randomInRange(int min, int max) {

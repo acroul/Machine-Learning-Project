@@ -494,8 +494,8 @@ public class Battle {
         }
 	
 	public int randomInRange(int min, int max) {
-		Random random = new Random(System.currentTimeMillis() * (max + 5)); // Trying a good random seed... I hope
-		return (random.nextInt((max - min) + 1) + min);
+		HighQualityRandom random = new HighQualityRandom(System.currentTimeMillis() * (max + 5));
+		return (random.next(25) % (max - min + 1) + min);
 	}
 	
 	public static void main(String args[]) {

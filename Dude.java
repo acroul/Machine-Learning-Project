@@ -38,7 +38,7 @@ class Dude {
 				this.MaxHP = 35;
 				this.HP = 35;
 				this.minDamage = 7;
-				this.maxDamage = 13;
+				this.maxDamage = 11;
 				this.Speed = 6;
 				this.Position = position;
 				this.Readiness = 0;
@@ -57,8 +57,8 @@ class Dude {
 			case "ranger":
 				this.MaxHP = 25;
 				this.HP = 25;
-				this.minDamage = 5;
-				this.maxDamage = 8;
+				this.minDamage = 6;
+				this.maxDamage = 9;
 				this.Speed = 8;
 				this.Position = position;
 				this.Readiness = 0;
@@ -98,8 +98,8 @@ class Dude {
 			case "priest":
 				this.MaxHP = 18;
 				this.HP = 18;
-				this.minDamage = 4;
-				this.maxDamage = 7;
+				this.minDamage = 5;
+				this.maxDamage = 8;
 				this.Speed = 5;
 				this.Position = position;
 				this.Readiness = 0;

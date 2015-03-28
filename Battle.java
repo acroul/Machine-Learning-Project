@@ -139,37 +139,41 @@ public class Battle {
 	
 	public void StartTurn() {
 		if(currentDudesTurn < 4) {
-			Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
-                        
-                    //Prevent Hero from attacking if stunned    
-                        if(Heroes[currentDudesTurn].isStunned()){
-                            String stunMessage = "Your "+ Heroes[currentDudesTurn].getName() + " is stunned and cannot move!";
-                            System.out.println(stunMessage);
-                            
-                            drawStatusNotifications(true, checkBlood(), checkPoison());
-                            
-                            Heroes[currentDudesTurn].WheelchairBound();
-                            BattleLoop();
-                        }else{
-                            gamePanel.setHeroTurn(currentDudesTurn);
-                        }
+                    Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
+
+                    boolean stun = checkStun();
+                    boolean blood = checkBlood();
+                    boolean poison = checkPoison();
+
+                    if(stun || blood || poison)
+                        drawStatusNotifications(stun, blood, poison);
+
+                    
+                //Prevent Hero from attacking if stunned    
+                    if(stun){
+                        BattleLoop();
+                    }else{
+                        gamePanel.setHeroTurn(currentDudesTurn);
+                    }
 		}
 		else {
-			Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
+                    Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
+
+                    boolean stun = checkStun();
+                    boolean blood = checkBlood();
+                    boolean poison = checkPoison();
+
+                    if(stun || blood || poison)
+                        drawStatusNotifications(stun, blood, poison);
+
                     
-                    //Prevent Foe from attacking if Stunned
-                        if(Foes[currentDudesTurn - 4].isStunned()){ 
-                            String stunMessage = "Enemy "+ Foes[currentDudesTurn - 4].getName() + " is stunned and cannot move!";
-                            System.out.println(stunMessage);
-                            
-                            drawStatusNotifications(true, checkBlood(), checkPoison());
-                            
-                            Foes[currentDudesTurn - 4].WheelchairBound();
-                            BattleLoop();
-                        }else{
-                            PrepareFoesTurn();
-                            selectFoe();
-                        }
+                //Prevent Foe from attacking if stunned    
+                    if(stun){
+                        BattleLoop();
+                    }else{
+                        PrepareFoesTurn();
+                        selectFoe();
+                    }
 		}
 	}
 
@@ -265,18 +269,20 @@ public class Battle {
             if(Stun)
                 message.append("Stunned!\n");
             if(Blood)
-                message.append("Bleeding Dmg!\n");
+                message.append("Bleeding!\n");
             if(Poison)
-                message.append("Poison Dmg!");
+                message.append("Poisoned!");
             
             ActionListener listener = new ActionListener(){
-                    public void actionPerformed(ActionEvent event){
-                            gamePanel.setNotification(message.toString());
-                    }
+                public void actionPerformed(ActionEvent event){
+                    gamePanel.statusUpdate = true;
+                    gamePanel.setStatusNotification(message.toString(), currentDudesTurn);
+                }
             };
             timer = new Timer(2000, listener);
             timer.setRepeats(false);
             timer.start();
+            System.out.println("HHFHJDHJKFHJDSIFEWIHEWFJKDKJS");
         }
 	
 	public void ProcessAttack(int selectedTarget, int selectedAttack) {
@@ -453,6 +459,22 @@ public class Battle {
                     attacker.FeelingVenomenal();
 
                     String message = attackerLoyalty + attacker.getName() + " is hurt by poison!";
+                    System.out.println(message);
+                    return true;
+            }
+            return false;
+        }
+        
+        public boolean checkStun(){
+            //Figure out whether Hero or Enemy is attacking
+            String attackerLoyalty = (currentDudesTurn < 4)?("Your "):("Enemy ");
+            Dude attacker = (currentDudesTurn < 4)?(Heroes[currentDudesTurn]):(Foes[currentDudesTurn - 4]);
+            
+            //Skip turn
+            if(attacker.isStunned()){
+                    attacker.WheelchairBound();
+
+                    String message = attackerLoyalty + attacker.getName() + " is stunned and cannot move!";
                     System.out.println(message);
                     return true;
             }

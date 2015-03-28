@@ -18,6 +18,8 @@ public class GamePanel extends JPanel implements MouseListener {
 	private boolean attackButtonClick = false;
 	private boolean isHerosTurn = false;
 	private boolean isFoesTurn = false;
+        protected boolean statusUpdate = false;
+        private int dyingMan = 0;
 	
 	private Battle battle;
 
@@ -66,6 +68,12 @@ public class GamePanel extends JPanel implements MouseListener {
 		this.notification = notification;
 		repaint();
 	}
+        
+        public void setStatusNotification(String notification, int dudeNumber){
+            this.notification = notification;
+            this.dyingMan = dudeNumber;
+            repaint();
+        }
 	
 //==========================
 //DRAW LOGIC
@@ -86,6 +94,9 @@ public class GamePanel extends JPanel implements MouseListener {
 				selectAttack(g2);
 			}
 			if(notification != null) {
+                            if(statusUpdate)
+                                drawStatusNotification(g2);
+                            else
 				drawNotification(g2);
 			}
 		}
@@ -406,6 +417,51 @@ public class GamePanel extends JPanel implements MouseListener {
 			drawY += 20;
 		}
 	}
+        
+        public void drawStatusNotification(Graphics2D g2){
+            int drawX;
+            int drawY = foeSquares[0].y + foeSquares[0].height + 60;
+            
+            switch(this.dyingMan){
+                case 1:
+                    drawX = heroSquares[0].x;
+                    break;
+                case 2:
+                    drawX = heroSquares[1].x;
+                    break;
+                case 3:
+                    drawX = heroSquares[2].x;
+                    break;
+                case 4:
+                    drawX = heroSquares[3].x;
+                    break;
+                case 5:
+                    drawX = foeSquares[0].x;
+                    break;
+                case 6:
+                    drawX = foeSquares[1].x;
+                    break;
+                case 7:
+                    drawX = foeSquares[2].x;
+                    break;
+                case 8:
+                    drawX = foeSquares[3].x;
+                    break;
+                default:
+                    drawX = heroSquares[0].x;
+                  
+            }
+            
+            
+            g2.setFont(new Font("Courier", Font.BOLD, 18));
+            String[] lines = notification.split("\n");
+            for(String line : lines) {
+                    g2.drawString(line, drawX, drawY);
+                    drawY += 20;
+            }
+            
+            this.statusUpdate = false;
+        }
 	
 	public void mouseClicked(MouseEvent e) {
 

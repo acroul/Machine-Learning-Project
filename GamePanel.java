@@ -56,11 +56,13 @@ public class GamePanel extends JPanel implements MouseListener {
 	
 	public void setFoesAttack(int attackIndex) {
 		this.selectedAttack = attackIndex;
+		this.notification = null;
 		repaint();
 	}
 	
 	public void setFoesTarget(int dudeIndex) {
 		this.foesTarget = dudeIndex;
+		this.notification = null;
 		repaint();
 	}
 
@@ -94,10 +96,10 @@ public class GamePanel extends JPanel implements MouseListener {
 				selectAttack(g2);
 			}
 			if(notification != null) {
-                            if(statusUpdate)
-                                drawStatusNotification(g2);
-                            else
-				drawNotification(g2);
+				if(statusUpdate)
+					drawStatusNotification(g2);
+				else
+					drawNotification(g2);
 			}
 		}
 		
@@ -420,31 +422,31 @@ public class GamePanel extends JPanel implements MouseListener {
         
         public void drawStatusNotification(Graphics2D g2){
             int drawX;
-            int drawY = foeSquares[0].y + foeSquares[0].height + 60;
+            int drawY = foeSquares[0].y + foeSquares[0].height + 25;
             
             switch(this.dyingMan){
-                case 1:
+                case 0:
                     drawX = heroSquares[0].x;
                     break;
-                case 2:
+                case 1:
                     drawX = heroSquares[1].x;
                     break;
-                case 3:
+                case 2:
                     drawX = heroSquares[2].x;
                     break;
-                case 4:
+                case 3:
                     drawX = heroSquares[3].x;
                     break;
-                case 5:
+                case 4:
                     drawX = foeSquares[0].x;
                     break;
-                case 6:
+                case 5:
                     drawX = foeSquares[1].x;
                     break;
-                case 7:
+                case 6:
                     drawX = foeSquares[2].x;
                     break;
-                case 8:
+                case 7:
                     drawX = foeSquares[3].x;
                     break;
                 default:

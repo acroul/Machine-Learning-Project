@@ -17,7 +17,7 @@ import java.awt.event.ActionListener;
  */
 
 public class Battle {
-        private JFrame window;
+	private JFrame window;
 	private GamePanel gamePanel;
 	private Timer timer;
 
@@ -39,7 +39,7 @@ public class Battle {
 		window = new JFrame("Dude Battle");
 		window.setBounds(0, 0, 800, 600);
 		window.setLocationRelativeTo(null);
-		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.gamePanel = new GamePanel(this);
 		this.gamePanel.setSize(800, 600);
 		window.add(gamePanel);
@@ -139,41 +139,31 @@ public class Battle {
 	
 	public void StartTurn() {
 		if(currentDudesTurn < 4) {
-                    Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
+			Heroes[currentDudesTurn].setReadiness(Heroes[currentDudesTurn].getReadiness() - readinessThreshold);
 
-                    boolean stun = checkStun();
-                    boolean blood = checkBlood();
-                    boolean poison = checkPoison();
+			boolean stun = checkStun();
+			boolean blood = checkBlood();
+			boolean poison = checkPoison();
 
-                    if(stun || blood || poison)
-                        drawStatusNotifications(stun, blood, poison);
+			if(stun || blood || poison)
+				drawStatusNotifications(stun, blood, poison);
 
-                    
-                //Prevent Hero from attacking if stunned    
-                    if(stun){
-                        BattleLoop();
-                    }else{
-                        gamePanel.setHeroTurn(currentDudesTurn);
-                    }
+
+			//Prevent Hero from attacking if stunned
+			if(stun){
+				BattleLoop();
+			}else{
+				gamePanel.setHeroTurn(currentDudesTurn);
+			}
 		}
 		else {
-                    Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
+			Foes[currentDudesTurn - 4].setReadiness(Foes[currentDudesTurn - 4].getReadiness() - readinessThreshold);
+			boolean stun = checkStun();
+			boolean blood = checkBlood();
+			boolean poison = checkPoison();
 
-                    boolean stun = checkStun();
-                    boolean blood = checkBlood();
-                    boolean poison = checkPoison();
-
-                    if(stun || blood || poison)
-                        drawStatusNotifications(stun, blood, poison);
-
-                    
-                //Prevent Foe from attacking if stunned    
-                    if(stun){
-                        BattleLoop();
-                    }else{
-                        PrepareFoesTurn();
-                        selectFoe();
-                    }
+			PrepareFoesTurn();
+			selectFoe(stun, blood, poison);
 		}
 	}
 
@@ -196,11 +186,16 @@ public class Battle {
 
 	/// Step two of the foe's turn
 	/// Waits one second, then selects the foe who will attack
-	public void selectFoe() {
+	public void selectFoe(final boolean stun, final boolean blood, final boolean poison) {
 		ActionListener listener = new ActionListener(){
 			public void actionPerformed(ActionEvent event){
 				gamePanel.setFoeTurn(currentDudesTurn - 4);
-				setFoesAttack();
+
+				if(stun || blood || poison) {
+					drawStatusNotifications(stun, blood, poison);
+				} else {
+					setFoesAttack();
+				}
 			}
 		};
 		timer = new Timer(1000, listener);
@@ -213,7 +208,6 @@ public class Battle {
 	public void setFoesAttack() {
 		ActionListener listener = new ActionListener(){
 			public void actionPerformed(ActionEvent event){
-				System.out.println("===============\nSelecting attack #" + foesSelectedAttack + "\n=======================");
 				gamePanel.setFoesAttack(foesSelectedAttack - 1);
 				setFoesTarget();
 			}
@@ -264,26 +258,35 @@ public class Battle {
 		timer.start();
 	}
         
-        public void drawStatusNotifications(boolean Stun, boolean Blood, boolean Poison){
-            StringBuffer message = new StringBuffer();
-            if(Stun)
-                message.append("Stunned!\n");
-            if(Blood)
-                message.append("Bleeding!\n");
-            if(Poison)
-                message.append("Poisoned!");
-            
-            ActionListener listener = new ActionListener(){
-                public void actionPerformed(ActionEvent event){
-                    gamePanel.statusUpdate = true;
-                    gamePanel.setStatusNotification(message.toString(), currentDudesTurn);
-                }
-            };
-            timer = new Timer(2000, listener);
-            timer.setRepeats(false);
-            timer.start();
-            System.out.println("HHFHJDHJKFHJDSIFEWIHEWFJKDKJS");
-        }
+	public void drawStatusNotifications(final boolean Stun, boolean Blood, boolean Poison){
+		final StringBuffer message = new StringBuffer();
+		if(Stun)
+			message.append("Stunned!\n");
+		if(Blood)
+			message.append("Bleeding!\n");
+		if(Poison)
+			message.append("Poisoned!");
+
+		ActionListener listener = new ActionListener(){
+			public void actionPerformed(ActionEvent event){
+				gamePanel.statusUpdate = true;
+				gamePanel.setStatusNotification(message.toString(), currentDudesTurn);
+
+				if(Foes[currentDudesTurn - 4].getHP() <= 0) {
+					CheckBattle();
+				}
+				if(Stun) {
+					BattleLoop();
+				} else {
+					setFoesAttack();
+				}
+			}
+		};
+		timer = new Timer(2000, listener);
+		timer.setRepeats(false);
+		timer.start();
+		System.out.println("HHFHJDHJKFHJDSIFEWIHEWFJKDKJS");
+	}
 	
 	public void ProcessAttack(int selectedTarget, int selectedAttack) {
 		Dude attacker, target;
@@ -298,8 +301,8 @@ public class Battle {
 		}
 		
                 //Inflict status damage
-                checkBlood();
-                checkPoison();
+                //checkBlood();
+                //checkPoison();
                 
                 //Initiate Attack
                 attack = attacker.getAttack(selectedAttack);
